@@ -54,6 +54,15 @@ function getlayers(absorption_coefficient, water_ac, reflectance)
      pro_ret2mirror = Layer(pro_pro_ret, pro_ret2mirror, mirror), 
      mirror = Layer(mirror, behind_mirror, earth))
 end
+function norefraction!(layers)
+    ks = collect(keys(layers))
+    todo = setdiff(ks, [:water, :mirror])
+    ri = layers.water.tissue.ri
+    for i in todo
+        layers[i].tissue.ri = ri
+    end
+    layers
+end
 function morphlayer!(l, morphz, morphxy)
     l.dis_membrane.rxy *= morphxy
     l.dis_membrane.rz *= morphz
@@ -133,6 +142,7 @@ function findnodalz(lb, ub, ous, rc)
 end
 function createobj(morphz, photoreceptor_radius, absorption_coefficient; ignore_incoming=false, water_ac = 0.03e-6, reflectance = 0.9)
     layers = morph2layers(morphz, absorption_coefficient, water_ac, reflectance)
+    # norefraction!(layers)
     mem = layers[1].pro_membrane
     rc = (rxy = mem.rxy, rz = mem.rz, cz = mem.cz)
     ous = getopticunits(layers, photoreceptor_radius, ignore_incoming)

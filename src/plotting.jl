@@ -1,14 +1,5 @@
 ##plottting
 using Statistics, Scallops, RayTraceEllipsoids
-function norefraction!(layers)
-    ks = collect(keys(layers))
-    todo = setdiff(ks, [:water, :mirror])
-    ri = layers.water.tissue.ri
-    for i in todo
-        layers[i].tissue.ri = ri
-    end
-    layers
-end
 using Makie, Colors, GeometryTypes
 using AbstractPlotting: textslider
 x2h(x, a, b, positive) = Scallops.signit(positive)*b/a*sqrt(a^2 - x^2)
@@ -137,6 +128,10 @@ function ray_trace_applet(; min_aperture = 200, max_aperture = 400, aperture_n =
         Δ = M - m
         m -= 0.1Δ
         M += 0.1Δ
+        if Δ == 0
+            m = copy(M)
+            M += 1
+        end
         map(todo) do k
             layers2color(all.layers, k, m, M) 
         end
@@ -165,52 +160,4 @@ function ray_trace_applet(; min_aperture = 200, max_aperture = 400, aperture_n =
     axis[:names, :axisnames] = ("X (μm)", "Y (μm)");
     vbox(hbox(sliders...), sc)
 end
-ray_trace_applet()
 
-using DataDeps, FileIO
-register(DataDep("scalloPupil", "a gif of scallop pupils", "https://vision-group-temporary.s3.amazonaws.com//scallop_pupil_Pm_green1_alt.gif", "4c8a194dd8a5df37833016d48a2f0f17cca321a8a6618984ddbc0a716b692063"))
-function aperturegif()
-    folder = @datadep_str "scalloPupil"
-    file = first(readdir(folder))
-    _gif = load(joinpath(folder, file))
-    n = size(_gif,3)
-    gif = map(1:n) do i
-        img = _gif[end:-1:1,:,i]
-        img'
-    end
-    x = 1:size(gif[1], 1)
-    y = 1:size(gif[1], 2)
-    t = Node(1)
-    min_aperture = 200
-    max_aperture = 400
-    aperture_n = n
-    morph_n = 100
-    min_distance = 0.4
-    max_distance = 10000
-    distance_n = 100
-    min_θ = -25
-    max_θ = 25
-    θ_n = 100
-    layers = morph2layers(1)
-    mem = layers[1].pro_membrane
-    ranges = getranges(min_aperture, max_aperture, aperture_n, mem.rxy, morph_n, min_distance, max_distance, distance_n, min_θ, max_θ, θ_n)
-    sliders, observables = getobservables(ranges...)
-    units = (aperture = "μm", morphz = "", distance = "mm", θ = "°")
-    observables[:aperture][] = max_aperture
-    observables[:morphz][] = 1.116360334693543
-    observables[:distance][] = minimum(ranges[:distance])
-    observables[:θ][] = 0
-    sc = getscene(observables..., limits = FRect(-350, -250, 2*350, 500), nvertices = 25)
-    aspect_ratio = size(gif[1], 2)/size(gif[1], 1)
-    a = 0.985*(1/(1 + aspect_ratio))
-    sc2 = hbox(sc, image(x, y, lift(i -> gif[i], t), scale_plot=false, show_axis = false), sizes = [a, 1 - a])
-    # text!(sc, lift(x -> string(k, ":", @sprintf("%10.2f", x), units[k]), observables[k]), position = (-500, -400), textsize = 50)
-    apertures = ranges[:aperture][end:-1:1]
-    record(sc2, "pupil.gif", 1:aperture_n) do i
-        if i == 1
-            observables[:distance][] = maximum(ranges[:distance])
-        end
-        observables[:aperture][] = apertures[i]
-        t[] = i
-    end
-end
