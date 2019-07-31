@@ -1,0 +1,49 @@
+% \documentclass{standalone}
+% \usepackage{tikz}
+% \usetikzlibrary{calc, shapes, intersections, through, quotes, angles}
+%
+% \begin{document}
+\begin{tikzpicture}%[inner sep = 0, outer sep = 0, x=1cm, y = 1cm]
+
+    \def\r{2}
+
+    \path[draw, name path = eye] (0, 0) circle (\r cm);
+
+    \path [name path = horizontal] (-\r, 0.4*\r) -- (0, 0.4*\r);
+    \path [name intersections = {of = eye and horizontal}];
+    \node[draw, fill = white, ellipse, name = pupil, minimum width = 0.4*\r cm, minimum height = 0.8*\r cm, anchor = north, pin = 100:$S_a$] at (intersection-1) {};
+
+    \path [name path = horizontal] (0, 0.2*\r) -- (\r, 0.2*\r);
+    \path [name intersections = {of = eye and horizontal}];
+    \node[draw, fill = white, ellipse, name = retina, minimum width = 0.2*\r cm, minimum height = 0.4*\r cm, anchor = north, pin = 80:$S_r$] at (intersection-1) {};
+
+    \node[draw, ellipse, name = target, minimum width = 0.9*\r cm, minimum height = 1.8*\r cm, pin = 90:$S_e$] at (-5*\r, 0) {};
+
+    \path[draw, name path = retinanorth2target] (retina.north) -- (target.south);
+    \path[draw, name path = retinasouth2target] (retina.south) -- (target.north);
+
+
+    \coordinate (A) at (pupil.south);
+    \coordinate (O) at (target.center);
+    \coordinate (B) at (pupil.north);
+    \draw (A) -- (O) -- (B) pic["$\omega$", draw, -, angle radius=1*\r cm] {angle=A--O--B};
+
+    \path [name intersections = {of = retinanorth2target and retinasouth2target}];
+
+    \node[pin=90:{nodal point}] at (intersection-1) {};
+
+    \coordinate (A) at ($ (retina.south) - (0,0.3*\r) $);
+    \draw[|-|] (A) -- node[below] {$f$} (A -| intersection-1);
+
+    \coordinate (B) at ($ (target.south) - (0,0.3*\r) $);
+    \draw[|-|] (B) -- node[below] {$D$} (B -| pupil);
+
+    \def\a{15}
+    \draw (intersection-1) let \p1 = ($(target.center)-(intersection-1)$) in ++(180:{veclen(\x1,\y1)}) arc ((180+\a):(180+2*\a):({veclen(\x1,\y1)}););
+    \draw (intersection-1) let \p1 = ($(target.center)-(intersection-1)$) in ++(180:{veclen(\x1,\y1)}) arc ((180+\a):180:({veclen(\x1,\y1)}););
+    \draw (intersection-1) let \p1 = ($(target.center)-(intersection-1)$) in ++(180:{veclen(\x1,\y1)}) arc ((180-\a):180:({veclen(\x1,\y1)}););
+    \draw (intersection-1) let \p1 = ($(target.center)-(intersection-1)$) in ++(180:{veclen(\x1,\y1)}) arc ((180-\a):(180-2*\a):({veclen(\x1,\y1)}););
+
+
+\end{tikzpicture}
+% \end{document}

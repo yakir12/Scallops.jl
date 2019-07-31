@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+    \begin{axis}[
+        xmin = 200, xmax = 400,
+        enlarge y limits,
+        xlabel=Aperture diameter (\SI{}{\micro\metre}), ylabel=Geometry (\SI{}{\micro\metre\squared \steradian})
+        ]
+        \addplot[] table[x=aperture, y=geometry, col sep=comma] {img/ray-traced.csv} node [near start, above, sloped] {ray-traced};
+        \addplot[gray] table[x=aperture, y=geometry, col sep=comma] {img/modified-Land.csv} node [near end, below, sloped] {standard};
+    \end{axis}
+\end{tikzpicture}
+

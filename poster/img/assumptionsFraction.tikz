@@ -1,0 +1,23 @@
+\begin{tikzpicture}
+    \begin{axis}[
+        xtick=data,
+        xmin = 200, xmax = 400,
+        xlabel=Aperture diameter (\SI{}{\micro\metre}),
+        ylabel=Sensitivity (\SI{}{\micro\metre\squared \steradian}),
+        clip=false
+        ]
+        \addplot[thick] table[x=apertures, y=ray-traced, col sep=comma] {img/assumptions.csv} node (a) {} node [, at end, below, anchor=north east, sloped] {ray-traced};
+        \addplot[] table[x=apertures, y=double-pass, col sep=comma] {img/assumptions.csv} node (b) {};
+        \node[pin=-45:{double-pass}] at ($(a)!0.5!(b)$) {};
+        \addplot[] table[x=apertures, y=losses, col sep=comma] {img/assumptions.csv} node (c) {};
+        \node[pin=0:{losses}] at ($(b)!0.5!(c)$) {};
+        \addplot[] table[x=apertures, y=coma-free, col sep=comma] {img/assumptions.csv} node (d) {};
+        \node[pin=0:{coma}] at ($(c)!0.5!(d)$) {};
+        \addplot[] table[x=apertures, y=aberrations, col sep=comma] {img/assumptions.csv} node (e) {};
+        \node[pin=0:{aberrations}] at ($(d)!0.5!(e)$) {};
+        \addplot[] table[x=apertures, y=modified-Land, col sep=comma] {img/assumptions.csv} node (f) {} node [, at end, above, anchor=south east, sloped] {modified-Land};
+        % \addplot[red] table[x=aperture, y=theoretical_sensitivity, col sep=comma] {img/datadis.csv};
+        % \node[anchor=east, font=\scriptsize] at ($(f)!0.5!(g)$) {aberrations};
+        % \addplot[dashed, gray] table[x=apertures, y=modified-Land, col sep=comma] {img/assumptions.csv} node [font=\scriptsize, above, sloped, near end] {modified-Land};
+    \end{axis}
+\end{tikzpicture}

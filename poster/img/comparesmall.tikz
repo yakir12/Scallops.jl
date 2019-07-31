@@ -1,0 +1,15 @@
+\begin{tikzpicture}
+    \begin{axis}[
+        % width = 0.75\textwidth,
+        % height = 0.75\textwidth,
+        xtick=data,
+        xmin = 200, xmax = 400,
+        enlarge y limits,
+        xlabel=Aperture diameter (\SI{}{\micro\metre}),
+        ylabel=Sensitivity (\SI{}{\micro\metre\squared \steradian})
+        ]
+        \addplot[] table[x=aperture, y=sensitivity, col sep=comma] {img/ray-traced.csv} node [near start, below, sloped] {ray-traced};
+        \addplot[gray] table[x=aperture, y=sensitivity, col sep=comma] {img/modified-Land.csv} node [near end, above, sloped] {standard};
+    \end{axis}
+\end{tikzpicture}
+
